@@ -1,0 +1,8 @@
+# Add files here to ignore them from prettier formatting
+/dist
+/coverage
+/.github
+
+# Ignore md files:
+CHANGELOG.md
+README.md

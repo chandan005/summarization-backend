@@ -1,0 +1,25 @@
+{
+  "name": "summarization-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lambda.js",
+  "scripts": {
+    "build": "tsc",
+    "local": "tsc && node dist/lambda.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/aws-lambda": "^8.10.119",
+    "@types/node": "^20.4.7",
+    "aws-sdk": "^2.1428.0",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.6.1"
+  },
+  "devDependencies": {
+    "@types/node-fetch": "^2.6.4",
+    "node-fetch": "^3.3.2",
+    "typescript": "^5.1.6"
+  }
+}
