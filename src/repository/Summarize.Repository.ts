@@ -15,7 +15,11 @@ export async function putItem(item: ISummarize): Promise<void> {
     Item: item,
   };
 
-  await dynamoDb.put(params).promise();
+  try {
+    await dynamoDb.put(params).promise();
+  } catch (err: any) {
+    throw new Error(`${err.message}`);
+  }
 }
 
 export async function getItem(id: string): Promise<ISummarize | undefined> {
@@ -29,9 +33,13 @@ export async function getItem(id: string): Promise<ISummarize | undefined> {
     },
   };
 
-  const result = await dynamoDb.get(params).promise();
+  try {
+    const result = await dynamoDb.get(params).promise();
 
-  return result.Item as ISummarize | undefined;
+    return result.Item as ISummarize | undefined;
+  } catch (err: any) {
+    throw new Error(`${err.message}`);
+  }
 }
 
 export async function getItems(
@@ -57,14 +65,21 @@ export async function getItems(
     params.ExclusiveStartKey = JSON.parse(nextPageKey);
   }
 
-  const result = await dynamoDb.query(params).promise();
-  const summarizations: ISummarize[] = result.Items ? (result.Items as ISummarize[]) : [];
+  try {
+    const result = await dynamoDb.query(params).promise();
+    if (!result) {
+      throw new Error('Error getting items.');
+    }
+    const summarizations: ISummarize[] = result.Items ? (result.Items as ISummarize[]) : [];
 
-  return {
-    data: summarizations,
-    pagination: {
-      count: result.Count ?? 0,
-      nextPageKey: JSON.stringify(result.LastEvaluatedKey),
-    },
-  };
+    return {
+      data: summarizations,
+      pagination: {
+        count: result.Count ?? 0,
+        nextPageKey: JSON.stringify(result.LastEvaluatedKey),
+      },
+    };
+  } catch (err: any) {
+    throw new Error(`${err.message}`);
+  }
 }
