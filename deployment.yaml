@@ -9,7 +9,7 @@ Globals:
     Environment:
       Variables:
         S3_BUCKET: !Ref S3Bucket
-        AWS_REGION: 'ap-southeast-1'
+        AWS_REGION: 'us-east-1'
         NODE_OPTIONS: --enable-source-maps
 
 Resources:
