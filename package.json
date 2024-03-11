@@ -12,11 +12,13 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.1574.0",
-    "joi": "^17.12.2"
+    "joi": "^17.12.2",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.119",
     "@types/node": "^20.4.7",
+    "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^7.1.1",
     "@typescript-eslint/parser": "^7.1.1",
     "esbuild": "^0.20.1",
