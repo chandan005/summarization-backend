@@ -1,0 +1,96 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Serverless Summarization - S3 -> Lambda -> DynamoDB -> Transcribe -> Bedrock
+
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 256
+    Environment:
+      Variables:
+        S3_BUCKET: !Ref S3Bucket
+        AWS_REGION: 'ap-southeast-1'
+        NODE_OPTIONS: --enable-source-maps
+
+Resources:
+  SummarizeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: SummarizeFunction
+      CodeUri: .
+      Handler: lambda.handler
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      FunctionUrlConfig:
+        AuthType: NONE
+        Cors:
+          AllowOrigins:
+            - '*'
+          AllowHeaders:
+            - '*'
+          AllowMethods:
+            - '*'
+      Environment:
+        Variables:
+          SUMMARIZATION_TABLE_NAME: !Ref SummarizeTable
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+          TableName: !Ref SummarizeTable
+        - S3CrudPolicy:
+            BucketName: !Ref S3Bucket
+        - PolicyName: TranscribeBedRockPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              Effect: Allow
+              Action:
+                - transcribe:StartTranscriptionJob
+                - transcribe:GetTranscriptionJob
+                - transcribe:TagResource
+              Resource:
+                - !Sub arn:aws:transcribe:${AWS::Region}:${AWS::AccountId}:transcription-job/summary-generator-*
+        - PolicyName: BedrockPermissions
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource:
+                  - !Sub arn:aws:bedrock:${AWS::Region}::foundation-model/anthropic.claude-v2
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: 'es2022'
+        Sourcemap: true
+        EntryPoints:
+          - src/lambda.ts
+
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: uploads
+
+  SummarizeTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: Summarize
+      BillingMode: 'PAY_PER_REQUEST'
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: createdAt
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: createdAt
+          KeyType: RANGE
+
+Outputs:
+  FunctionURLEndpoint:
+    Description: Summarize Function URL
+    Value: !GetAtt SummarizeFunctionUrl.FunctionUrl
