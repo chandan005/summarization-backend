@@ -8,7 +8,7 @@ import { getItem, getItems, putItem } from '../repository/Summarize.Repository';
 
 export async function createSummarization(payload: any): Promise<ISummarize> {
   const schema = Joi.object<CreateSummarizationDto>({
-    s3FileName: Joi.string().required(),
+    s3InputFileName: Joi.string().required(),
   });
 
   const { error: validationError } = schema.validate(payload);
@@ -16,11 +16,16 @@ export async function createSummarization(payload: any): Promise<ISummarize> {
     throw new Error(validationError.message);
   }
 
-  const { s3FileName } = payload as CreateSummarizationDto;
+  const { s3InputFileName } = payload as CreateSummarizationDto;
 
   try {
     const id = uuidv4();
-    await putItem({ id: uuidv4(), s3FileName, s3Url: '', createdAt: new Date().toISOString() });
+    await putItem({
+      id: uuidv4(),
+      s3InputFileName,
+      s3InputFileUrl: '',
+      createdAt: new Date().toISOString(),
+    });
     const summarizedItem = await getItem(id);
     if (!summarizedItem) {
       throw new Error('Item not found');

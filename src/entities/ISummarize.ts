@@ -1,10 +1,11 @@
 export interface ISummarize {
   id: string;
-  s3FileName: string;
-  s3Url: string;
+  s3InputFileName: string;
+  s3InputFileUrl: string;
   isText?: boolean;
   isMedia?: boolean;
-  transcribedText?: string;
+  s3TranscribedFileName?: string;
+  s3TranscribedFileUrl?: string;
   summarizedText?: string;
   createdAt: string;
 }

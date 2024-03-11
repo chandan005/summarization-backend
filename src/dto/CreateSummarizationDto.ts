@@ -1,3 +1,3 @@
 export interface CreateSummarizationDto {
-  s3FileName: string;
+  s3InputFileName: string;
 }
