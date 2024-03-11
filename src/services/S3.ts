@@ -4,6 +4,8 @@ import { GetPresignedUrlDto } from '../dto/GetPresignedUrlDto';
 import { PresignedUrlType } from '../dto/PresignedUrlType';
 import { SignedUrlResponseDto } from '../dto/SignedUrlResponseDto';
 
+const BUCKET_NAME = process.env.S3_BUCKET;
+
 const s3 = new S3({
   region: process.env.AWS_REGION,
   signatureVersion: 'v4',
@@ -17,7 +19,7 @@ async function generateSignedUrl(
   try {
     return s3.getSignedUrlPromise(operationType, {
       Key: key,
-      Bucket: process.env.S3_BUCKET,
+      Bucket: BUCKET_NAME,
       Expires: expirationTimeInSeconds,
     });
   } catch (err: any) {
@@ -54,5 +56,22 @@ export async function uploadToS3(payload: any): Promise<SignedUrlResponseDto> {
     return response;
   } catch (err: any) {
     throw new Error(`${err.message}`);
+  }
+}
+
+export async function fetchS3ObjectContent(key: string): Promise<any> {
+  try {
+    if (!BUCKET_NAME) {
+      throw new Error('Bucket Not Found.');
+    }
+    const s3Object = await s3.getObject({ Bucket: BUCKET_NAME, Key: key }).promise();
+
+    if (!s3Object) {
+      throw new Error('S3 Object Not Found.');
+    }
+
+    return s3Object.Body?.toString();
+  } catch (err: any) {
+    throw new Error(err);
   }
 }

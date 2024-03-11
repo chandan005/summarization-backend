@@ -4,7 +4,7 @@ Description: Serverless Summarization - S3 -> Lambda -> DynamoDB -> Transcribe -
 
 Globals:
   Function:
-    Timeout: 60
+    Timeout: 180
     MemorySize: 256
     Environment:
       Variables:
