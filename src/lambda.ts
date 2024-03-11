@@ -56,7 +56,7 @@ async function handler(event: any, context?: Context): Promise<APIGatewayProxyRe
         try {
           payload = checkIfBodyIsValid(event);
           const summarizedItem = await createSummarization(payload);
-          return ApiResponse(200, { ...summarizedItem });
+          return ApiResponse(200, {});
         } catch (err: any) {
           return ApiResponse(400, { message: err.message });
         }

@@ -3,13 +3,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { CreateSummarizationDto } from '../dto/CreateSummarizationDto';
 import { FindSummarizationQueryDto } from '../dto/FindSummarizationQueryDto';
 import { SummarizationResponseDto } from '../dto/SummarizationResponseDto';
-import { ISummarize } from '../entities/ISummarize';
-import { getItem, getItems, putItem } from '../repository/Summarize.Repository';
+import { getItems, putItem } from '../repository/Summarize.Repository';
 import { fetchS3ObjectContent } from './S3';
 import { summarizeText } from './Summarize';
 import { startAndWaitForTranscription } from './transcribe';
 
-export async function createSummarization(payload: any): Promise<ISummarize> {
+export async function createSummarization(payload: any): Promise<void> {
   const schema = Joi.object<CreateSummarizationDto>({
     s3InputFileName: Joi.string().required(),
     isText: Joi.boolean().optional(),
@@ -43,11 +42,11 @@ export async function createSummarization(payload: any): Promise<ISummarize> {
       summarizedText: summarizedText ?? '',
       transcribedText: transcribedText ?? '',
     });
-    const summarizedItem = await getItem(id);
-    if (!summarizedItem) {
-      throw new Error('Item not found');
-    }
-    return summarizedItem;
+    // const summarizedItem = await getItem(id);
+    // if (!summarizedItem) {
+    //   throw new Error(`Item not found for ID ${id}`);
+    // }
+    // return summarizedItem;
   } catch (err: any) {
     throw new Error(`${err.message}`);
   }

@@ -35,7 +35,7 @@ export async function getItem(id: string): Promise<ISummarize | undefined> {
 
   try {
     const result = await dynamoDb.get(params).promise();
-    console.log('DynamoDB Get Item', result.Item);
+    console.log(`DynamoDB Get Item for ID ${id}`, result.Item);
 
     return result.Item as ISummarize | undefined;
   } catch (err: any) {
@@ -52,12 +52,13 @@ export async function getItems(
   }
   const params: any = {
     TableName: TableName,
+    IndexName: 'CreatedAtIndex',
     KeyConditionExpression: '#createdAt >= :createdAt',
     ExpressionAttributeNames: {
       '#createdAt': 'createdAt',
     },
     ExpressionAttributeValues: {
-      ':createdAt': '0',
+      ':createdAt': new Date().toISOString(),
     },
     Limit: count,
   };
