@@ -6,7 +6,7 @@ import {
 
 const BedRockClient = new BedrockRuntimeClient({ region: process.env.AWS_REGION });
 
-export async function summarizeText(prompt: string): Promise<void> {
+export async function summarizeText(prompt: string): Promise<any> {
   const textGenerationConfig = {
     maxTokenCount: 4096,
     stopSequences: [],
@@ -30,7 +30,7 @@ export async function summarizeText(prompt: string): Promise<void> {
 
     const responseBody = JSON.parse(decodedResponseBody);
     console.log(responseBody.results);
-    // return responseBody.results;
+    return responseBody.results;
   } catch (err) {
     if (err instanceof AccessDeniedException) {
       console.error(`Access denied. Ensure you have the correct permissions to invoke.`);

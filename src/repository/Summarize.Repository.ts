@@ -35,6 +35,7 @@ export async function getItem(id: string): Promise<ISummarize | undefined> {
 
   try {
     const result = await dynamoDb.get(params).promise();
+    console.log('DynamoDB Get Item', result.Item);
 
     return result.Item as ISummarize | undefined;
   } catch (err: any) {

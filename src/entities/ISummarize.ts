@@ -3,7 +3,7 @@ export interface ISummarize {
   s3InputFileName: string;
   isText?: boolean;
   isMedia?: boolean;
-  s3TranscribedFileName?: string;
+  transcribedText?: string;
   summarizedText?: string;
   createdAt: string;
 }

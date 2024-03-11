@@ -1,5 +1,5 @@
 import { APIGatewayEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { createSummarization } from './services/LambdaApi';
+import { createSummarization, findSummarizations } from './services/LambdaApi';
 import { uploadToS3 } from './services/S3';
 import { ApiMethod } from './shared/ApiMethod.Enum';
 import { ApiPath } from './shared/ApiPath.Enum';
@@ -18,15 +18,14 @@ function checkIfBodyIsValid(event: APIGatewayEvent): any | undefined {
   }
 }
 
-async function handler(event: APIGatewayEvent, context?: Context): Promise<APIGatewayProxyResult> {
-  if (!event.requestContext) {
-    return ApiResponse(400, { message: 'Bad Request - Missing Path' });
-  }
+async function handler(event: any, context?: Context): Promise<APIGatewayProxyResult> {
+  console.log('Event Body', event.body);
+  console.log('Event Path', event);
 
-  const path = event.path;
-  const method = event.httpMethod;
+  const method = event.requestContext.http.method;
+  const path = event.requestContext.http.path;
 
-  switch (event.path) {
+  switch (path) {
     case ApiPath.UploadObject:
       if (method !== ApiMethod.Post) {
         return ApiResponse(405, { message: 'Method Not Allowed' });
@@ -40,9 +39,17 @@ async function handler(event: APIGatewayEvent, context?: Context): Promise<APIGa
         return ApiResponse(400, { message: err.message });
       }
 
-    case ApiPath.FindSummarization:
+    case ApiPath.Summarize:
       if (method === ApiMethod.Get) {
-        return ApiResponse(200, {});
+        const query = event.queryStringParameters;
+        if (!query.count) {
+          return ApiResponse(400, { message: 'Count Missing in Query' });
+        }
+        const summarizations = await findSummarizations({
+          count: parseInt(query.count),
+          nextPageKey: query.nextPageKey,
+        });
+        return ApiResponse(200, { ...summarizations });
       }
       if (method === ApiMethod.Post) {
         let payload: any;
@@ -54,10 +61,10 @@ async function handler(event: APIGatewayEvent, context?: Context): Promise<APIGa
           return ApiResponse(400, { message: err.message });
         }
       }
-      return ApiResponse(404, { message: 'Not Found' });
+      return ApiResponse(404, { message: 'Summarization Not Found' });
 
     default:
-      return ApiResponse(404, { message: 'Not Found' });
+      return ApiResponse(400, { message: 'Path Not Allowed' });
   }
 }
 

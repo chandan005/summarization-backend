@@ -22,14 +22,16 @@ export async function createSummarization(payload: any): Promise<ISummarize> {
   }
 
   const { s3InputFileName, isText, isMedia } = payload as CreateSummarizationDto;
+  let transcribedText: undefined;
+  let summarizedText: undefined;
 
   if (isText) {
     const s3TextContent = await fetchS3ObjectContent(s3InputFileName);
-    const summarizedText = await summarizeText(s3TextContent);
+    summarizedText = await summarizeText(s3TextContent);
   }
 
   if (isMedia) {
-    const transcibedText = await startAndWaitForTranscription(s3InputFileName);
+    transcribedText = await startAndWaitForTranscription(s3InputFileName);
   }
 
   try {
@@ -38,6 +40,8 @@ export async function createSummarization(payload: any): Promise<ISummarize> {
       id: uuidv4(),
       s3InputFileName,
       createdAt: new Date().toISOString(),
+      summarizedText: summarizedText ?? '',
+      transcribedText: transcribedText ?? '',
     });
     const summarizedItem = await getItem(id);
     if (!summarizedItem) {

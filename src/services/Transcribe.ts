@@ -38,7 +38,7 @@ async function waitForTranscriptionJobCompletion(jobName: string): Promise<void>
   }
 }
 
-async function fetchAndDisplayTranscript(jobName: string, s3InputFileName: string): Promise<void> {
+async function fetchAndDisplayTranscript(jobName: string, s3InputFileName: string): Promise<any> {
   const status = await transcribeService
     .getTranscriptionJob({ TranscriptionJobName: jobName })
     .promise();
@@ -56,19 +56,20 @@ async function fetchAndDisplayTranscript(jobName: string, s3InputFileName: strin
 
     const transcriptText = transcriptJson?.results?.transcripts[0].transcript;
     console.log(transcriptText);
+    return transcriptText;
   } else {
     console.log('Transcription job failed');
   }
 }
 
-export async function startAndWaitForTranscription(s3InputFileName: string): Promise<void> {
+export async function startAndWaitForTranscription(s3InputFileName: string): Promise<any> {
   try {
     const jobName = `${s3InputFileName}-${Date.now()}`;
     await startTranscriptionJob(s3InputFileName, jobName);
 
     await waitForTranscriptionJobCompletion(jobName);
 
-    await fetchAndDisplayTranscript(jobName, s3InputFileName);
+    return fetchAndDisplayTranscript(jobName, s3InputFileName);
   } catch (error) {
     console.error('Error:', error);
   }

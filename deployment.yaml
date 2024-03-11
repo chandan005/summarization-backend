@@ -5,14 +5,38 @@ Description: Serverless Summarization - S3 -> Lambda -> DynamoDB -> Transcribe -
 Globals:
   Function:
     Timeout: 180
-    MemorySize: 256
+    MemorySize: 512
     Environment:
       Variables:
         S3_BUCKET: !Ref S3Bucket
-        AWS_REGION: 'us-east-1'
-        NODE_OPTIONS: --enable-source-maps
 
 Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: justchek-summarizations
+
+  SummarizeTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: Summarize
+      BillingMode: 'PAY_PER_REQUEST'
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: createdAt
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: CreatedAtIndex
+          KeySchema:
+            - AttributeName: createdAt
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
   SummarizeFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -37,27 +61,24 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-          TableName: !Ref SummarizeTable
+            TableName: !Ref SummarizeTable
         - S3CrudPolicy:
             BucketName: !Ref S3Bucket
-        - PolicyName: TranscribeBedRockPolicy
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              Effect: Allow
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
               Action:
-                - transcribe:StartTranscriptionJob
-                - transcribe:GetTranscriptionJob
-                - transcribe:TagResource
-        - PolicyName: BedrockPermissions
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - bedrock:InvokeModel
-                Resource:
-                  - !Sub arn:aws:bedrock:${AWS::Region}::foundation-model/amazon.titan-text-express-v1
+                - 'transcribe:StartTranscriptionJob'
+                - 'transcribe:GetTranscriptionJob'
+                - 'transcribe:TagResource'
+              Resource: '*'
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+              Resource: !Sub 'arn:aws:bedrock:${AWS::Region}::foundation-model/amazon.titan-text-express-v1'
+
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -66,32 +87,6 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - src/lambda.ts
-
-  S3Bucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: uploads
-
-  SummarizeTable:
-    Type: 'AWS::DynamoDB::Table'
-    Properties:
-      TableName: Summarize
-      BillingMode: 'PAY_PER_REQUEST'
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-        - AttributeName: createdAt
-          AttributeType: S
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
-      GlobalSecondaryIndexes:
-        - IndexName: CreatedAtIndex
-          KeySchema:
-            - AttributeName: createdAt
-              KeyType: HASH
-          Projection:
-            ProjectionType: ALL
 
 Outputs:
   FunctionURLEndpoint:
