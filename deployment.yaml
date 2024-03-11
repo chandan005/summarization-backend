@@ -49,8 +49,6 @@ Resources:
                 - transcribe:StartTranscriptionJob
                 - transcribe:GetTranscriptionJob
                 - transcribe:TagResource
-              Resource:
-                - !Sub arn:aws:transcribe:${AWS::Region}:${AWS::AccountId}:transcription-job/summary-generator-*
         - PolicyName: BedrockPermissions
           PolicyDocument:
             Version: 2012-10-17
@@ -59,7 +57,7 @@ Resources:
                 Action:
                   - bedrock:InvokeModel
                 Resource:
-                  - !Sub arn:aws:bedrock:${AWS::Region}::foundation-model/anthropic.claude-v2
+                  - !Sub arn:aws:bedrock:${AWS::Region}::foundation-model/amazon.titan-text-express-v1
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

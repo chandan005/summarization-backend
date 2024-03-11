@@ -61,7 +61,7 @@ async function fetchAndDisplayTranscript(jobName: string, s3InputFileName: strin
   }
 }
 
-async function startAndWaitForTranscription(s3InputFileName: string): Promise<void> {
+export async function startAndWaitForTranscription(s3InputFileName: string): Promise<void> {
   try {
     const jobName = `${s3InputFileName}-${Date.now()}`;
     await startTranscriptionJob(s3InputFileName, jobName);

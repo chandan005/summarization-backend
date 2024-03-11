@@ -6,7 +6,7 @@ import {
 
 const BedRockClient = new BedrockRuntimeClient({ region: process.env.AWS_REGION });
 
-async function summarizeText(prompt: string): Promise<void> {
+export async function summarizeText(prompt: string): Promise<void> {
   const textGenerationConfig = {
     maxTokenCount: 4096,
     stopSequences: [],
