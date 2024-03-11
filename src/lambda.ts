@@ -1,9 +1,9 @@
 import { APIGatewayEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
+import { createSummarization } from './services/LambdaApi';
+import { uploadToS3 } from './services/S3';
 import { ApiMethod } from './shared/ApiMethod.Enum';
 import { ApiPath } from './shared/ApiPath.Enum';
 import { ApiResponse } from './shared/ApiResponse';
-import { createSummarization } from './summarize';
-import { uploadToS3 } from './upload';
 
 function checkIfBodyIsValid(event: APIGatewayEvent): any | undefined {
   if (!event.body) {

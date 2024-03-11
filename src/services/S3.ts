@@ -1,8 +1,8 @@
 import { S3 } from 'aws-sdk';
 import Joi from 'joi';
-import { GetPresignedUrlDto } from './dto/GetPresignedUrlDto';
-import { PresignedUrlType } from './dto/PresignedUrlType';
-import { SignedUrlResponseDto } from './dto/SignedUrlResponseDto';
+import { GetPresignedUrlDto } from '../dto/GetPresignedUrlDto';
+import { PresignedUrlType } from '../dto/PresignedUrlType';
+import { SignedUrlResponseDto } from '../dto/SignedUrlResponseDto';
 
 const s3 = new S3({
   region: process.env.AWS_REGION,
@@ -37,7 +37,6 @@ export async function uploadToS3(payload: any): Promise<SignedUrlResponseDto> {
   const { error: validationError } = schema.validate(payload);
   if (validationError) {
     throw new Error(validationError.message);
-    // return ApiResponse(400, { message: validationError.message });
   }
 
   const { operationType, fileName, expirationTimeInSeconds } = payload as GetPresignedUrlDto;
@@ -46,7 +45,6 @@ export async function uploadToS3(payload: any): Promise<SignedUrlResponseDto> {
     const signedUrl = await generateSignedUrl(fileName, operationType, expirationTimeInSeconds);
     if (!signedUrl) {
       throw new Error('Error getting signedUrl.');
-      // return ApiResponse(404, { message: 'Error getting signedUrl.' });
     }
     const response: SignedUrlResponseDto = {
       signedUrl,
@@ -54,9 +52,7 @@ export async function uploadToS3(payload: any): Promise<SignedUrlResponseDto> {
       expirationTimeInSeconds,
     };
     return response;
-    // return ApiResponse(200, { ...response });
   } catch (err: any) {
     throw new Error(`${err.message}`);
-    // return ApiResponse(404, { message: `${err.message}` });
   }
 }

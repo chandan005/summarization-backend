@@ -1,8 +1,9 @@
 import Joi from 'joi';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateSummarizationDto } from './dto/CreateSummarizationDto';
-import { ISummarize } from './entities/ISummarize';
-import { getItem, putItem } from './repository/Summarize.Repository';
+import { CreateSummarizationDto } from '../dto/CreateSummarizationDto';
+import { SummarizationResponseDto } from '../dto/SummarizationResponseDto';
+import { ISummarize } from '../entities/ISummarize';
+import { getItem, putItem } from '../repository/Summarize.Repository';
 
 export async function createSummarization(payload: any): Promise<ISummarize> {
   const schema = Joi.object<CreateSummarizationDto>({
@@ -29,6 +30,8 @@ export async function createSummarization(payload: any): Promise<ISummarize> {
   }
 }
 
-export async function findSummarizations(query: any): Promise<ISummarize[]> {
-  return [];
+export async function findSummarizations(
+  query: any,
+): Promise<SummarizationResponseDto | undefined> {
+  return undefined;
 }

@@ -1,4 +1,4 @@
 export interface FindSummarizationQueryDto {
-  lastEvaluatedKey: string;
-  pageSize: string;
+  nextPageKey?: string;
+  count?: number;
 }
